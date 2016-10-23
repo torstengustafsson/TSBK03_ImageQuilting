@@ -51,9 +51,26 @@ int main(int argc, char *argv[])
 
 	//load texture
 	TextureData tex;
-	LoadTGATexture("images/uppochner.tga", &tex);
 
-	iq = new ImageQuilter(1024, 1024, 64, tex);
+	char* file;
+	bool ok =false;
+	
+	if(argc > 1) {
+		file = argv[1];
+		if(!(ok = LoadTGATexture(file, &tex)))
+			cout << "\nError loading file (does filename '" << file << "'' exist?)\nLoading noise image instead..\n\n";
+	}
+	
+	if(!ok)
+		LoadTGATexture("images/noise.tga", &tex);
+
+	int synthesis_size = 64;
+	if(argc > 2) {
+		synthesis_size = atoi(argv[2]);
+	}
+
+	iq = new ImageQuilter(1024, 1024, synthesis_size, tex);
+	iq->saveImage();
 
 	glutTimerFunc(5, &OnTimer, 0);
 	glutMainLoop();

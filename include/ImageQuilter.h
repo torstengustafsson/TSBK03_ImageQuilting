@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <memory>
+#include <fstream>
 
 #ifdef __APPLE__
 // Mac
@@ -45,6 +46,8 @@ public:
 	void create_image();
 
 	void render();
+
+	void saveImage();
 
 private:
 	const unsigned width, height;
