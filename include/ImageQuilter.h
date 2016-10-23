@@ -40,13 +40,11 @@ using namespace std;
 class ImageQuilter
 {
 public:
-	ImageQuilter(const unsigned& w, const unsigned& h, const unsigned& ss);
+	ImageQuilter(const unsigned& w, const unsigned& h, const unsigned& ss, TextureData t);
 
 	void create_image();
 
 	void render();
-
-	void working_temp();
 
 private:
 	const unsigned width, height;
@@ -55,7 +53,7 @@ private:
 	RandomGenerator rng;
 
 	GLuint phongshader = 0, plaintextureshader = 0, combineshader = 0;
-	GLuint tex;
+	TextureData tex;
 	FBOstruct *fbo_texture, *fbo_final, *fbo_patch;
 	FBOstruct *fbo1, *fbo2, *fbo3, *fbo4;
 

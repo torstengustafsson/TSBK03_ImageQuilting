@@ -49,7 +49,11 @@ int main(int argc, char *argv[])
 	glutReshapeFunc(reshape);
 	glutIdleFunc(idle);
 
-	iq = new ImageQuilter(W, H, 64);
+	//load texture
+	TextureData tex;
+	LoadTGATexture("images/uppochner.tga", &tex);
+
+	iq = new ImageQuilter(1024, 1024, 64, tex);
 
 	glutTimerFunc(5, &OnTimer, 0);
 	glutMainLoop();
