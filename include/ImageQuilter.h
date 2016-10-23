@@ -33,6 +33,7 @@
 
 
 #include "Square.h"
+#include "RandomGenerator.h"
 
 using namespace std;
 
@@ -51,9 +52,11 @@ private:
 	const unsigned width, height;
 	const unsigned synthesis_size;
 
+	RandomGenerator rng;
+
 	GLuint phongshader = 0, plaintextureshader = 0, combineshader = 0;
 	GLuint tex;
-	FBOstruct *fbo_texture, *fbo_final;
+	FBOstruct *fbo_texture, *fbo_final, *fbo_patch;
 	FBOstruct *fbo1, *fbo2, *fbo3, *fbo4;
 
 	Square image_square;
