@@ -1,4 +1,5 @@
 build/
 images/jpg/
+images/output_images/
 .fuse_hidden*
 output.tga

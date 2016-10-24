@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
 		synthesis_size = atoi(argv[2]);
 	}
 
-	iq = new ImageQuilter(1024, 1024, synthesis_size, tex);
+	iq = new ImageQuilter(512, 512, synthesis_size, tex);
 	iq->saveImage();
 
 	glutTimerFunc(5, &OnTimer, 0);

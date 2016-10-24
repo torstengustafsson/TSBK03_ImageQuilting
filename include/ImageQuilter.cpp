@@ -14,7 +14,8 @@ ImageQuilter::ImageQuilter(const unsigned& w, const unsigned& h, const unsigned&
 
 	// Load and compile shaders
 	plaintextureshader = loadShaders("shaders/plaintextureshader.vert", "shaders/plaintextureshader.frag");
-	combineshader = loadShaders("shaders/plaintextureshader.vert", "shaders/combineshader.frag");  // renders with light (used for initial renderin of teapot)
+	combineshader = loadShaders("shaders/plaintextureshader.vert", "shaders/combineshader.frag");
+	transparencyshader = loadShaders("shaders/plaintextureshader.vert", "shaders/transparencyshader.frag");
 
 	//initialize FBOs
 	fbo_texture = initFBO(tex.width, tex.height, 0);
@@ -27,8 +28,8 @@ ImageQuilter::ImageQuilter(const unsigned& w, const unsigned& h, const unsigned&
 	fbo3 = initFBO(width, height, 0);
 	fbo4 = initFBO(width, height, 0);
 
-	create_image_random();
-	//create_image_neighbor();
+	//create_image_random();
+	create_image_neighbor();
 	//create_image_minerror();
 }
 
@@ -76,3 +77,18 @@ void ImageQuilter::saveImage()
 	data=NULL;
 }
 
+void ImageQuilter::draw_fbo(FBOstruct *out, FBOstruct *in1, FBOstruct *in2, GLuint& shader)
+{
+	useFBO(out, in1, in2);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glUseProgram(shader);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+
+	if(shader == combineshader) {
+		glUniform1i(glGetUniformLocation(combineshader, "texUnit"), 0);
+		glUniform1i(glGetUniformLocation(combineshader, "texUnit2"), 1);
+	}
+
+	DrawModel(image_square.get(), shader, "in_Position", NULL, "in_TexCoord");
+}

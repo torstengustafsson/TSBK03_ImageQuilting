@@ -57,10 +57,12 @@ private:
 
 	RandomGenerator rng;
 
-	GLuint phongshader = 0, plaintextureshader = 0, combineshader = 0;
+	GLuint plaintextureshader = 0, combineshader = 0, transparencyshader = 0;
 	TextureData tex;
 	FBOstruct *fbo_texture, *fbo_final, *fbo_patch;
 	FBOstruct *fbo1, *fbo2, *fbo3, *fbo4;
 
 	Square image_square;
+
+	void draw_fbo(FBOstruct *out, FBOstruct *in1, FBOstruct *in2, GLuint& shader);
 };
