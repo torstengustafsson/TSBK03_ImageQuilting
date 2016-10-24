@@ -22,8 +22,8 @@ void ImageQuilter::create_image_neighbor()
 			float overlap_w = synthesis_size/8.0 * pix_w;  // amount of width pixels that overlap each other
 			float overlap_h = synthesis_size/8.0 * pix_h;  // amount of height pixels that overlap each other
 
-			float x_pos = rng(width*(1-1/w_count_in)) * pix_w;
-			float y_pos = rng(height*(1-1/h_count_in)) * pix_w;
+			float x_pos = rng(width*(1.0-1.0/w_count_in)) * pix_w;
+			float y_pos = rng(height*(1.0-1.0/h_count_in)) * pix_w;
 			float x_width = 1/w_count_in;
 			float y_height = 1/h_count_in;
 
@@ -37,7 +37,6 @@ void ImageQuilter::create_image_neighbor()
 			Square s_down(x_pos, y_pos - overlap_h, x_width, 2 * overlap_h);
 
 			//corner cases must be handled also
-			
 
 			//fix position for pong-ponging
 			float overlap_w_out = overlap_w * tex.width / width;
@@ -56,10 +55,23 @@ void ImageQuilter::create_image_neighbor()
 			glDisable(GL_DEPTH_TEST);
 			glDisable(GL_CULL_FACE);
 			DrawModel(s.get(), plaintextureshader, "in_Position", NULL, "in_TexCoord");
+
 			glUseProgram(transparencyshader);
+			glUniform1i(glGetUniformLocation(transparencyshader, "side"), 0);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord1"), x_pos + overlap_w);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord2"), x_pos - overlap_w);
 			DrawModel(s_left.get(), transparencyshader, "in_Position", NULL, "in_TexCoord");
+			glUniform1i(glGetUniformLocation(transparencyshader, "side"), 1);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord1"), x_pos + x_width + overlap_w);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord2"), x_pos + x_width - overlap_w);
 			DrawModel(s_right.get(), transparencyshader, "in_Position", NULL, "in_TexCoord");
+			glUniform1i(glGetUniformLocation(transparencyshader, "side"), 2);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord1"), y_pos + y_height + overlap_h);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord2"), y_pos + y_height - overlap_h);
 			DrawModel(s_up.get(), transparencyshader, "in_Position", NULL, "in_TexCoord");
+			glUniform1i(glGetUniformLocation(transparencyshader, "side"), 3);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord1"), y_pos + overlap_h);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord2"), y_pos - overlap_h);
 			DrawModel(s_down.get(), transparencyshader, "in_Position", NULL, "in_TexCoord");
 
 			if(count++ == 0) {
