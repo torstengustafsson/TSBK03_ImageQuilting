@@ -14,7 +14,7 @@ void ImageQuilter::create_image_random()
 	for(unsigned i = 0; i < w_count_out; i++) {
 		for(unsigned j = 0; j < h_count_out; j++) {
 			
-			//draw a patch of texture to current fbo patch
+			//we will draw a patch of texture to current fbo patch
 			useFBO(fbo_patch, fbo_texture, 0L);
 
 			//create the square to draw our patch from
@@ -46,11 +46,9 @@ void ImageQuilter::create_image_random()
 		}
 	}
 
-	if(count % 2 == 0)
-		useFBO(fbo_final, fbo2, 0L);
-	else 
-		useFBO(fbo_final, fbo1, 0L);
+	useFBO(fbo_final, (count % 2 == 0) ? fbo2 : fbo1, 0L);
 	
+	//draw the final image
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(plaintextureshader);
 	glDisable(GL_CULL_FACE);
