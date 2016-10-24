@@ -31,7 +31,13 @@ ENDIF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 add_subdirectory(../common COMMON)
 
 set(SOURCE_FILES
-       include/main.cpp include/ImageQuilter.cpp include/Square.cpp include/RandomGenerator.cpp)
+       include/main.cpp 
+       include/ImageQuilter.cpp 
+       include/ImageQuilter_random.cpp
+       include/ImageQuilter_neighbor.cpp
+       include/ImageQuilter_minerror.cpp
+       include/Square.cpp 
+       include/RandomGenerator.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

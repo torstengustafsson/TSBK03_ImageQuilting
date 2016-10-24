@@ -43,7 +43,9 @@ class ImageQuilter
 public:
 	ImageQuilter(const unsigned& w, const unsigned& h, const unsigned& ss, TextureData t);
 
-	void create_image();
+	void create_image_random();
+	void create_image_neighbor();
+	void create_image_minerror();
 
 	void render();
 
