@@ -16,6 +16,7 @@ ImageQuilter::ImageQuilter(const unsigned& w, const unsigned& h, const unsigned&
 	plaintextureshader = loadShaders("shaders/plaintextureshader.vert", "shaders/plaintextureshader.frag");
 	combineshader = loadShaders("shaders/plaintextureshader.vert", "shaders/combineshader.frag");
 	transparencyshader = loadShaders("shaders/plaintextureshader.vert", "shaders/transparencyshader.frag");
+	minerrorshader = loadShaders("shaders/plaintextureshader.vert", "shaders/minerrorshader.frag");
 
 	//initialize FBOs
 	fbo_texture = initFBO(tex.width, tex.height, 0);
@@ -46,7 +47,7 @@ void ImageQuilter::render()
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
-	DrawModel(image_square.get(), plaintextureshader, "in_Position", NULL, "in_TexCoord");
+	DrawModel(image_square.get(), plaintextureshader, (char*)"in_Position", NULL, (char*)"in_TexCoord");
 
 	glutSwapBuffers();
 }
@@ -57,7 +58,7 @@ void ImageQuilter::saveImage()
 {
 	int x = fbo_final->width;
 	int y = fbo_final->height;
-	char* filename = "output.tga";
+	const char* filename = "output.tga";
 
 	// get the image data
 	long imageSize = x * y * 3;
@@ -66,7 +67,7 @@ void ImageQuilter::saveImage()
 	int xa= x % 256;
 	int xb= (x-xa)/256;int ya= y % 256;
 	int yb= (y-ya)/256;//assemble the header
-	unsigned char header[18]={0,0,2,0,0,0,0,0,0,0,0,0,(char)xa,(char)xb,(char)ya,(char)yb,24,0};
+	unsigned char header[18]={0,0,2,0,0,0,0,0,0,0,0,0,(unsigned char)xa,(unsigned char)xb,(unsigned char)ya,(unsigned char)yb,24,0};
 	// write header and data to file
 	fstream File(filename, ios::out | ios::binary);
 	File.write (reinterpret_cast<char *>(header), sizeof (char)*18);
@@ -90,5 +91,26 @@ void ImageQuilter::draw_fbo(FBOstruct *out, FBOstruct *in1, FBOstruct *in2, GLui
 		glUniform1i(glGetUniformLocation(combineshader, "texUnit2"), 1);
 	}
 
-	DrawModel(image_square.get(), shader, "in_Position", NULL, "in_TexCoord");
+	DrawModel(image_square.get(), shader, (char*)"in_Position", NULL, (char*)"in_TexCoord");
+}
+
+
+void ImageQuilter::draw_fbo_minerror(FBOstruct *out, FBOstruct *in1, FBOstruct *in2)
+{
+	useFBO(out, in1, in2);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glUseProgram(minerrorshader);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+
+	DrawModel(image_square.get(), minerrorshader, (char*)"in_Position", NULL, (char*)"in_TexCoord");
+}
+
+void ImageQuilter::draw_square_fbo(Square *s, FBOstruct *out, FBOstruct *in1)
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glUseProgram(plaintextureshader);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	DrawModel(s->get(), plaintextureshader, (char*)"in_Position", NULL, (char*)"in_TexCoord");
 }

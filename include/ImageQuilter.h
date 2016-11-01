@@ -31,6 +31,7 @@
 #include "GL_utilities.h"
 #include "loadobj.h"
 #include "zpr.h"
+#include "float.h"
 
 
 #include "Square.h"
@@ -57,7 +58,7 @@ private:
 
 	RandomGenerator rng;
 
-	GLuint plaintextureshader = 0, combineshader = 0, transparencyshader = 0;
+	GLuint plaintextureshader = 0, combineshader = 0, transparencyshader = 0, minerrorshader = 0;
 	TextureData tex;
 	FBOstruct *fbo_texture, *fbo_final, *fbo_patch;
 	FBOstruct *fbo1, *fbo2, *fbo3, *fbo4;
@@ -65,4 +66,18 @@ private:
 	Square image_square;
 
 	void draw_fbo(FBOstruct *out, FBOstruct *in1, FBOstruct *in2, GLuint& shader);
+	void draw_fbo_minerror(FBOstruct *out, FBOstruct *in1, FBOstruct *in2);
+	void draw_square_fbo(Square *s, FBOstruct *out, FBOstruct *in1);
+
+	struct patch_data {
+		FBOstruct *fbo;
+		Square* s;
+		patch_data(FBOstruct* _fbo, Square* _s) : fbo{_fbo}, s{_s} {}
+		patch_data() {}
+		patch_data& operator=(const patch_data& pd) {
+			fbo = pd.fbo;
+			s = pd.s;
+			return *this;
+		}
+	};
 };

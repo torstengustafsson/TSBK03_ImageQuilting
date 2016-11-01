@@ -52,7 +52,7 @@ void ImageQuilter::create_image_neighbor()
 			glUniform1f(glGetUniformLocation(transparencyshader, "coord_u2"), y_pos + y_height + overlap_h);
 			glUniform1f(glGetUniformLocation(transparencyshader, "coord_d1"), y_pos - overlap_h);
 			glUniform1f(glGetUniformLocation(transparencyshader, "coord_d2"), y_pos + overlap_h);
-			DrawModel(s.get(), transparencyshader, "in_Position", NULL, "in_TexCoord");
+			DrawModel(s.get(), transparencyshader, (char*)"in_Position", NULL, (char*)"in_TexCoord");
 
 			if(count++ == 0) {
 				draw_fbo(fbo1, fbo_patch, 0L, plaintextureshader);
@@ -74,5 +74,5 @@ void ImageQuilter::create_image_neighbor()
 	glUseProgram(plaintextureshader);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
-	DrawModel(image_square.get(), plaintextureshader, "in_Position", NULL, "in_TexCoord");
+	DrawModel(image_square.get(), plaintextureshader, (char*)"in_Position", NULL, (char*)"in_TexCoord");
 }

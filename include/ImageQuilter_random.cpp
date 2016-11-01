@@ -31,7 +31,7 @@ void ImageQuilter::create_image_random()
 			glClearColor(0.0, 0.0, 0.0, 0);
 			glDisable(GL_DEPTH_TEST);
 			glDisable(GL_CULL_FACE);
-			DrawModel(s.get(), plaintextureshader, "in_Position", NULL, "in_TexCoord");
+			DrawModel(s.get(), plaintextureshader, (char*)"in_Position", NULL, (char*)"in_TexCoord");
 
 			if(count++ == 0) {
 				draw_fbo(fbo1, fbo_patch, 0L, plaintextureshader);
@@ -53,5 +53,5 @@ void ImageQuilter::create_image_random()
 	glUseProgram(plaintextureshader);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
-	DrawModel(image_square.get(), plaintextureshader, "in_Position", NULL, "in_TexCoord");
+	DrawModel(image_square.get(), plaintextureshader, (char*)"in_Position", NULL, (char*)"in_TexCoord");
 }
