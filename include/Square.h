@@ -37,17 +37,18 @@ using namespace std;
 class Square
 {
 public:
-	Square(const float x, const float y, const float w, const float h);
+	Square(const float _x, const float _y, const float w, const float h);
+	Square(const Square& s);
 
-	void set_position(const float x, const float y, const float w = 0, const float h = 0);
+	void set_position(const float _x, const float _y, const float w = 0, const float h = 0);
+	void move_texture(const float _x, const float _y, const float w = 0, const float h = 0);
 	Model* get();
 
+	float x, y, width, height;
 private:
 	GLfloat square[12];
 	GLfloat squareTexCoord[8];
 	GLuint squareIndices[6] = {0, 1, 2, 0, 2, 3};
-
-	float width, height;
 
 	Model* squareModel;
 };

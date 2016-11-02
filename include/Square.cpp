@@ -20,32 +20,38 @@ Square::Square(const float& x, const float& y, const float& w, const float& h) :
 			squareIndices, 4, 6);
 }
 */
-Square::Square(const float x, const float y, const float w, const float h) :
+Square::Square(const float _x, const float _y, const float w, const float h) :
 	square {
-			-1 + 2*x    , -1 + 2*y    , 0, // 0
-			-1 + 2*x    , -1 + 2*(y+h), 0, // 1
-			-1 + 2*(x+w), -1 + 2*(y+h), 0, // 2
-			-1 + 2*(x+w), -1 + 2*y    , 0  // 3
+			-1 + 2*_x    , -1 + 2*_y    , 0, // 0
+			-1 + 2*_x    , -1 + 2*(_y+h), 0, // 1
+			-1 + 2*(_x+w), -1 + 2*(_y+h), 0, // 2
+			-1 + 2*(_x+w), -1 + 2*_y    , 0  // 3
 		   },
 	squareTexCoord {
-					x  , y,   // 0
-					x  , y+h, // 1
-					x+w, y+h, // 2
-					x+w, y    // 3
+					_x  , _y,   // 0
+					_x  , _y+h, // 1
+					_x+w, _y+h, // 2
+					_x+w, _y    // 3
 				   },
 	squareIndices {0, 1, 2, 0, 2, 3}
 {
 	squareModel = LoadDataToModel(
 			square, NULL, squareTexCoord, NULL,
 			squareIndices, 4, 6);
+	x = _x;
+	y = _y;
 	width = w;
 	height = h;
 }
 
-void Square::set_position(const float x, const float y, const float w, const float h)
+Square::Square(const Square& s) : Square(s.x, s.y, s.width, s.height) {};
+
+void Square::set_position(const float _x, const float _y, const float w, const float h)
 {
 	width = w != 0 ? w : width;
 	height = h != 0 ? h : height;
+	x = _x;
+	y = _y;
 	square[0] = -1 + 2*x;
 	square[1] = -1 + 2*y;
 	square[3] = -1 + 2*x;
@@ -66,6 +72,23 @@ void Square::set_position(const float x, const float y, const float w, const flo
 	squareModel = LoadDataToModel(
 			square, NULL, squareTexCoord, NULL,
 			squareIndices, 4, 6);
+}
+
+void Square::move_texture(const float _x, const float _y, const float w, const float h)
+{
+	width = w != 0 ? w : width;
+	height = h != 0 ? h : height;
+	x = _x;
+	y = _y;
+	squareTexCoord[0] = x;
+	squareTexCoord[1] = y;
+	squareTexCoord[2] = x;
+	squareTexCoord[3] = y+height;
+	squareTexCoord[4] = x+width;
+	squareTexCoord[5] = y+height;
+	squareTexCoord[6] = x+width;
+	squareTexCoord[7] = y;
+	set_position(x, y, width, height);
 }
 
 Model* Square::get()
