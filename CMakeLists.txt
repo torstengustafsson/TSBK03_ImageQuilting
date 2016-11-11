@@ -10,25 +10,25 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 find_package(OpenGL REQUIRED)
 
-include_directories("../common" )
+include_directories("include/common" )
 include_directories(${OPENGL_INCLUDE_DIR})
 
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    include_directories("../common/Linux")
+    include_directories("include/common/Linux")
     add_definitions(-DGL_GLEXT_PROTOTYPES)
     SET(OperatingSystem "Linux")
 ENDIF (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 
 IF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    include_directories("../common/Mac")
+    include_directories("include/common/Mac")
     SET(OperatingSystem "Mac OS X")
 
     SET(EXTRA_LIBS "-framework Cocoa -framework OpenGL -framework IOKit -framework Foundation -framework AppKit")
 
 ENDIF (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
-add_subdirectory(../common COMMON)
+add_subdirectory(include/common COMMON)
 
 set(SOURCE_FILES
        include/main.cpp 

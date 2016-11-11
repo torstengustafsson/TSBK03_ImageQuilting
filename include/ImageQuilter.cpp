@@ -2,13 +2,6 @@
 
 ImageQuilter::ImageQuilter(const unsigned& w, const unsigned& h, const unsigned& ss, TextureData t)
 	: width{w}, height{h}, synthesis_size{ss}, tex{t}, image_square(0, 0, 1, 1)
-	//w_count_out{(float)(width/synthesis_size)}, h_count_out{(float)(height/synthesis_size)},
-	//w_count_in{(float)(tex.width/synthesis_size)}, h_count_in{(float)(tex.width/synthesis_size)},
-	//pix_w{1/(float)width}, pix_h{1/(float)height},
-	//overlap_w{(float)(synthesis_size/6.0 * pix_w)}, overlap_h{(float)(synthesis_size/6.0 * pix_h)},
-	//x_width{1/w_count_in}, y_height{1/h_count_in},
-	//overlap_w_out{overlap_w * tex.width / width}, overlap_h_out{overlap_h * tex.height / height},
-	//patch_w_out{1/w_count_out + 2 * overlap_w_out}, patch_h_out{1/h_count_out + 2 * overlap_h_out}
 
 {
 	dumpInfo();  // shader info
@@ -27,8 +20,10 @@ ImageQuilter::ImageQuilter(const unsigned& w, const unsigned& h, const unsigned&
 	h_count_in = tex.height/synthesis_size; // amount of patches that fit on in texture width
 	pix_w = 1/(float)width;  // width of one pixel
 	pix_h = 1/(float)height; // height of one pixel
-	overlap_w = synthesis_size/6.0 * pix_w;  // amount of width pixels that overlap each other
-	overlap_h = synthesis_size/6.0 * pix_h;  // amount of height pixels that overlap each other
+	pix_w_in = 1/(float)tex.width;  // width of one pixel in in texture coordinates
+	pix_h_in = 1/(float)tex.height; // height of one pixel in in texture coordinates
+	overlap_w = synthesis_size/3.0 * pix_w;  // amount of width pixels that overlap each other
+	overlap_h = synthesis_size/3.0 * pix_h;  // amount of height pixels that overlap each other
 	x_width = 1/w_count_in;  // width of a patch (without the overlap)
 	y_height = 1/h_count_in; // height of a patch (without the overlap)
 	overlap_w_out = overlap_w * tex.width / width; // size of overlap width in out texture coordinates
@@ -36,10 +31,18 @@ ImageQuilter::ImageQuilter(const unsigned& w, const unsigned& h, const unsigned&
 	patch_w_out = 1/w_count_out + 2 * overlap_w_out; // size of patch width in out texture coordinates
 	patch_h_out = 1/h_count_out + 2 * overlap_h_out; // size of patch height in out texture coordinates
 
+	//print_values();
+
+	if( (w_count_out / (float)w_count_in) != round(w_count_out / w_count_in) ||
+		(h_count_out / (float)h_count_in) != round(h_count_out / h_count_in)) {
+		cout << "\n*** Error ***\nSynthesis size must be evenly divisible by both width and height!\n";
+	}
+
 	// Load and compile shaders
 	plaintextureshader = loadShaders("shaders/plaintextureshader.vert", "shaders/plaintextureshader.frag");
 	combineshader = loadShaders("shaders/plaintextureshader.vert", "shaders/combineshader.frag");
 	transparencyshader = loadShaders("shaders/plaintextureshader.vert", "shaders/transparencyshader.frag");
+	//overlapshader = loadShaders("shaders/plaintextureshader.vert", "shaders/overlapshader.frag");
 	minerrorshader = loadShaders("shaders/plaintextureshader.vert", "shaders/minerrorshader.frag");
 	translateshader = loadShaders("shaders/translateshader.vert", "shaders/plaintextureshader.frag");
 
@@ -51,6 +54,7 @@ ImageQuilter::ImageQuilter(const unsigned& w, const unsigned& h, const unsigned&
 	fbo1 = initFBO(width, height, 0);
 	fbo2 = initFBO(width, height, 0);
 	
+	//fbo_test = initFBO((int)(width*patch_w_out), (int)(height*patch_h_out), 0);
 	fbo_test = initFBO(width, height, 0);
 }
 
@@ -106,7 +110,7 @@ void ImageQuilter::draw_fbo(FBOstruct *out, FBOstruct *in1, FBOstruct *in2, GLui
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 
-	if(shader == combineshader || shader == minerrorshader) {
+	if(shader == combineshader) {
 		glUniform1i(glGetUniformLocation(combineshader, "texUnit"), 0);
 		glUniform1i(glGetUniformLocation(combineshader, "texUnit2"), 1);
 	}
@@ -124,4 +128,27 @@ void ImageQuilter::draw_fbo_translated(FBOstruct *out, FBOstruct *in, GLfloat x,
 	mat4 transMatrix = T(x, y, 0.0);
 	glUniformMatrix4fv(glGetUniformLocation(translateshader, "mat"), 1, GL_TRUE, transMatrix.m);
 	DrawModel(image_square.get(), translateshader, (char*)"in_Position", NULL, (char*)"in_TexCoord");
+}
+
+
+void ImageQuilter::print_values()
+{
+	cout << "\nValues are: \n" <<
+	"width 		" << width << "\n" <<
+	"height 		" << height << "\n" <<
+	"synthesis_size 	" << synthesis_size << "\n" <<
+	"w_count_out 	" << w_count_out <<  "\n" <<
+	"h_count_out 	" << h_count_out << "\n" <<
+	"w_count_in 	" << w_count_in << "\n" <<
+	"h_count_in 	" << h_count_in << "\n" <<
+	"pix_w 		" << pix_w << "\n" <<
+	"pix_h 		" << pix_h << "\n" <<
+	"overlap_w 	" << overlap_w << "\n" <<
+	"overlap_h 	" << overlap_h << "\n" <<
+	"x_width 	" << x_width << "\n" <<
+	"y_height 	" << y_height << "\n" <<
+	"overlap_w_out 	" << overlap_w_out << "\n" <<
+	"overlap_h_out 	" << overlap_h_out << "\n" <<
+	"patch_w_out 	" << patch_w_out << "\n" <<
+	"patch_h_out 	" << patch_h_out << "\n\n";
 }

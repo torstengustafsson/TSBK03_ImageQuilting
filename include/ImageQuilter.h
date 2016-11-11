@@ -2,6 +2,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <vector>
+#include <algorithm>
 #include <memory>
 #include <fstream>
 
@@ -76,8 +77,8 @@ private:
 		}
 	};
 
-	GLuint plaintextureshader = 0, combineshader = 0, transparencyshader = 0, minerrorshader = 0,
-		   translateshader = 0;
+	GLuint plaintextureshader = 0, combineshader = 0, transparencyshader = 0, overlapshader = 0,
+		   minerrorshader = 0, translateshader = 0;
 	TextureData tex;
 	FBOstruct *fbo_texture, *fbo_final, *fbo_patch;
 	FBOstruct *fbo1, *fbo2; // ping-pong FBOs
@@ -88,8 +89,9 @@ private:
 	void draw_fbo(FBOstruct *out, FBOstruct *in1, FBOstruct *in2, GLuint& shader);
 	void draw_fbo_translated(FBOstruct *out, FBOstruct *in, GLfloat x, GLfloat y);
 
-	float calc_minerror(patch_data in1, patch_data in2, bool side);
+	float calc_minerror(patch_data& in1, patch_data& in2, bool side);
 
+	void print_values();
 
 	float w_count_out;
 	float h_count_out;
@@ -97,6 +99,8 @@ private:
 	float h_count_in;
 	float pix_w;  // width of one pixel
 	float pix_h; // height of one pixel
+	float pix_w_in;
+	float pix_h_in;
 	float overlap_w;  // amount of width pixels that overlap each other
 	float overlap_h;  // amount of height pixels that overlap each other
 	float x_width;  // width of a patch (without the overlap)
