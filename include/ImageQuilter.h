@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>	//TODO only used for testing, might want to remove when complete
 #include <math.h>
 #include <stdlib.h>
 #include <vector>
@@ -63,12 +64,21 @@ private:
 		FBOstruct *fbo;
 		Square *s;
 		ImageQuilter& parent;
-		patch_data(FBOstruct* _fbo, Square* _s, ImageQuilter& _p) : fbo{_fbo}, s{_s}, parent{_p} {}
-		patch_data(const patch_data& pd) : parent{pd.parent} {
-			fbo = initFBO(pd.fbo->width, pd.fbo->height, 0);
+		//patch_data(FBOstruct* _fbo, Square* _s, ImageQuilter& _p) : fbo{_fbo}, s{_s}, parent{_p} 
+		//{
+		//	//fbo = initFBO(_fbo->width, _fbo->height, 0);
+		//}
+		patch_data(FBOstruct* _fbo, ImageQuilter& _p) : parent{_p} 
+		{
+			fbo = initFBO(_fbo->width, _fbo->height, 0); // TODO: this is horribly slow and uses too much GPU memory
+			parent.draw_fbo(fbo, _fbo, 0L, parent.plaintextureshader);
+			//s = new Square(*(_s));
+		}
+		/*patch_data(const patch_data& pd) : parent{pd.parent} {
+			fbo = initFBO(pd.fbo->width, pd.fbo->height, 0); // TODO: this is horribly slow and uses too much GPU memory
 			parent.draw_fbo(fbo, pd.fbo, 0L, parent.plaintextureshader);
 			s = new Square(*(pd.s));
-		}
+		}*/
 
 		patch_data& operator=(const patch_data& pd) {
 			fbo = pd.fbo;
@@ -82,31 +92,35 @@ private:
 	TextureData tex;
 	FBOstruct *fbo_texture, *fbo_final, *fbo_patch;
 	FBOstruct *fbo1, *fbo2; // ping-pong FBOs
-	FBOstruct *fbo_test; // for development
+	FBOstruct *fbo_work; // used for various purposes
 
 	Square image_square;
 
 	void draw_fbo(FBOstruct *out, FBOstruct *in1, FBOstruct *in2, GLuint& shader);
 	void draw_fbo_translated(FBOstruct *out, FBOstruct *in, GLfloat x, GLfloat y);
 
+	//Used by minerror method
+	const int amount_patches = 10; // higher value should give better images, but slows down program linearly
+	vector<patch_data> patches;
+	void generate_patches();
 	float calc_minerror(patch_data& in1, patch_data& in2, bool side);
 
 	void print_values();
 
-	float w_count_out;
-	float h_count_out;
 	float w_count_in;
 	float h_count_in;
-	float pix_w;  // width of one pixel
-	float pix_h; // height of one pixel
-	float pix_w_in;
-	float pix_h_in;
-	float overlap_w;  // amount of width pixels that overlap each other
-	float overlap_h;  // amount of height pixels that overlap each other
-	float x_width;  // width of a patch (without the overlap)
-	float y_height; // height of a patch (without the overlap)
+	float pix_w_in; // width of one pixel
+	float pix_h_in; // height of one pixel
+	float overlap_w_in;  // amount of width pixels that overlap each other
+	float overlap_h_in;  // amount of height pixels that overlap each other
+	float patch_w_in;  // width of a patch (without the overlap)
+	float patch_h_in; // height of a patch (without the overlap)
 
 	//convert to final image coordinates
+	float w_count_out;
+	float h_count_out;
+	float pix_w_out;
+	float pix_h_out;
 	float overlap_w_out;
 	float overlap_h_out;
 	float patch_w_out;

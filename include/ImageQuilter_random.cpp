@@ -5,12 +5,7 @@ void ImageQuilter::create_image_random()
 	fbo_texture->texid = tex.texID;
 
 	int count = 0;
- 	float w_count_out = width/synthesis_size;
-	float h_count_out = height/synthesis_size;
-	
-	float w_count_in = tex.width/synthesis_size;
-	float h_count_in = tex.height/synthesis_size;
-	
+
 	for(unsigned i = 0; i < w_count_out; i++) {
 		for(unsigned j = 0; j < h_count_out; j++) {
 			

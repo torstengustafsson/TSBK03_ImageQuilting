@@ -22,18 +22,18 @@ Square::Square(const float& x, const float& y, const float& w, const float& h) :
 */
 Square::Square(const float _x, const float _y, const float w, const float h) :
 	square {
-			-1 + 2*_x    , -1 + 2*_y    , 0, // 0
-			-1 + 2*_x    , -1 + 2*(_y+h), 0, // 1
-			-1 + 2*(_x+w), -1 + 2*(_y+h), 0, // 2
-			-1 + 2*(_x+w), -1 + 2*_y    , 0  // 3
-		   },
+		-1 + 2*_x    , -1 + 2*_y    , 0, // 0
+		-1 + 2*_x    , -1 + 2*(_y+h), 0, // 1
+		-1 + 2*(_x+w), -1 + 2*(_y+h), 0, // 2
+		-1 + 2*(_x+w), -1 + 2*_y    , 0  // 3
+	   },
 	squareTexCoord {
-					_x  , _y,   // 0
-					_x  , _y+h, // 1
-					_x+w, _y+h, // 2
-					_x+w, _y    // 3
-				   },
-	squareIndices {0, 1, 2, 0, 2, 3}
+		_x  , _y,   // 0
+		_x  , _y+h, // 1
+		_x+w, _y+h, // 2
+		_x+w, _y    // 3
+	   },
+	squareIndices { 0, 1, 2, 0, 2, 3 }
 {
 	squareModel = LoadDataToModel(
 			square, NULL, squareTexCoord, NULL,
@@ -68,10 +68,16 @@ void Square::set_position(const float _x, const float _y, const float w, const f
 		-1 + 2*(x+w), -1 + 2*(y+h), 0
 		-1 + 2*(x+w), -1 + 2*y    , 0
 	*/
+	
+	squareModel->vertexArray = square;	
 
-	squareModel = LoadDataToModel(
-			square, NULL, squareTexCoord, NULL,
-			squareIndices, 4, 6);
+	glBindVertexArray(squareModel->vao);	
+	glBindBuffer(GL_ARRAY_BUFFER, squareModel->vb);
+	glBufferData(GL_ARRAY_BUFFER, squareModel->numVertices*3*sizeof(GLfloat), squareModel->vertexArray, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, squareModel->tb);
+	glBufferData(GL_ARRAY_BUFFER, squareModel->numVertices*2*sizeof(GLfloat), squareModel->texCoordArray, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, squareModel->ib);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, squareModel->numIndices*sizeof(GLuint), squareModel->indexArray, GL_STATIC_DRAW);
 }
 
 void Square::move_texture(const float _x, const float _y, const float w, const float h)

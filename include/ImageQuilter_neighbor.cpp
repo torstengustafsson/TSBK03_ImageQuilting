@@ -5,34 +5,18 @@ void ImageQuilter::create_image_neighbor()
 	fbo_texture->texid = tex.texID;
 
 	int count = 0;
- 	float w_count_out = width/synthesis_size;
-	float h_count_out = height/synthesis_size;
-	
-	float w_count_in = tex.width/synthesis_size;
-	float h_count_in = tex.height/synthesis_size;
-	
+
 	for(unsigned i = 0; i < w_count_out; i++) {
 		for(unsigned j = 0; j < h_count_out; j++) {
 			
 			//we will draw a patch of texture to current fbo patch
 			useFBO(fbo_patch, fbo_texture, 0L);
 
-			float pix_w = 1/(float)width;  // width of one pixel
-			float pix_h = 1/(float)height; // height of one pixel
-			float overlap_w = synthesis_size/8.0 * pix_w;  // amount of width pixels that overlap each other
-			float overlap_h = synthesis_size/8.0 * pix_h;  // amount of height pixels that overlap each other
-
-			float x_pos = rng(width*(1.0-1.0/w_count_in)) * pix_w;
-			float y_pos = rng(height*(1.0-1.0/h_count_in)) * pix_w;
-			float x_width = 1/w_count_in;
-			float y_height = 1/h_count_in;
+			float x_pos = rng(width*(1.0-1.0/w_count_in)) * pix_w_in;
+			float y_pos = rng(height*(1.0-1.0/h_count_in)) * pix_w_in;
 
 			//create the square to draw our patch from
-			Square s(x_pos - overlap_w, y_pos - overlap_h, x_width + 2 * overlap_w, y_height + 2 * overlap_h);
-
-			//convert overlap to final image coordinates
-			float overlap_w_out = overlap_w * tex.width / width;
-			float overlap_h_out = overlap_w * tex.height / height;
+			Square s(x_pos - overlap_w_in, y_pos - overlap_h_in, patch_w_in + 2 * overlap_w_in, patch_h_in + 2 * overlap_h_in);
 
 			//position square to fit final image
 			s.set_position(i/w_count_out - overlap_w_out, j/h_count_out - overlap_h_out, 1/w_count_out + 2 * overlap_w_out, 1/h_count_out + 2 * overlap_h_out);
@@ -44,14 +28,14 @@ void ImageQuilter::create_image_neighbor()
 			glDisable(GL_CULL_FACE);
 
 			//perform drawing of side squares
-			glUniform1f(glGetUniformLocation(transparencyshader, "coord_l1"), x_pos - overlap_w);
-			glUniform1f(glGetUniformLocation(transparencyshader, "coord_l2"), x_pos + overlap_w);
-			glUniform1f(glGetUniformLocation(transparencyshader, "coord_r1"), x_pos + x_width - overlap_w);
-			glUniform1f(glGetUniformLocation(transparencyshader, "coord_r2"), x_pos + x_width + overlap_w);
-			glUniform1f(glGetUniformLocation(transparencyshader, "coord_u1"), y_pos + y_height - overlap_h);
-			glUniform1f(glGetUniformLocation(transparencyshader, "coord_u2"), y_pos + y_height + overlap_h);
-			glUniform1f(glGetUniformLocation(transparencyshader, "coord_d1"), y_pos - overlap_h);
-			glUniform1f(glGetUniformLocation(transparencyshader, "coord_d2"), y_pos + overlap_h);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord_l1"), x_pos - overlap_w_in);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord_l2"), x_pos + overlap_w_in);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord_r1"), x_pos + patch_w_in - overlap_w_in);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord_r2"), x_pos + patch_w_in + overlap_w_in);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord_u1"), y_pos + patch_h_in - overlap_h_in);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord_u2"), y_pos + patch_h_in + overlap_h_in);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord_d1"), y_pos - overlap_h_in);
+			glUniform1f(glGetUniformLocation(transparencyshader, "coord_d2"), y_pos + overlap_h_in);
 			DrawModel(s.get(), transparencyshader, (char*)"in_Position", NULL, (char*)"in_TexCoord");
 
 			if(count++ == 0) {

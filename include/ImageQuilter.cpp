@@ -13,29 +13,31 @@ ImageQuilter::ImageQuilter(const unsigned& w, const unsigned& h, const unsigned&
 	glDisable(GL_CULL_FACE);
 	printError("GL inits");
 
+cout << tex.width << ", " << tex.height << endl;
+
 	//Initialize a bunch of helper variables
-	w_count_out = width/synthesis_size; // amount of patches that fit on out texture width
-	h_count_out = height/synthesis_size; // amount of patches that fit on out texture height
 	w_count_in = tex.width/synthesis_size; // amount of patches that fit on in texture width
 	h_count_in = tex.height/synthesis_size; // amount of patches that fit on in texture width
-	pix_w = 1/(float)width;  // width of one pixel
-	pix_h = 1/(float)height; // height of one pixel
+	w_count_out = width/synthesis_size; // amount of patches that fit on out texture width
+	h_count_out = height/synthesis_size; // amount of patches that fit on out texture height
 	pix_w_in = 1/(float)tex.width;  // width of one pixel in in texture coordinates
 	pix_h_in = 1/(float)tex.height; // height of one pixel in in texture coordinates
-	overlap_w = synthesis_size/3.0 * pix_w;  // amount of width pixels that overlap each other
-	overlap_h = synthesis_size/3.0 * pix_h;  // amount of height pixels that overlap each other
-	x_width = 1/w_count_in;  // width of a patch (without the overlap)
-	y_height = 1/h_count_in; // height of a patch (without the overlap)
-	overlap_w_out = overlap_w * tex.width / width; // size of overlap width in out texture coordinates
-	overlap_h_out = overlap_h * tex.height / height; // size of overlap height in out texture coordinates
+	pix_w_out = 1/(float)width;  // width of one pixel
+	pix_h_out = 1/(float)height; // height of one pixel
+	overlap_w_in = synthesis_size/2.0 * pix_w_out;  // amount of width pixels that overlap each other
+	overlap_h_in = synthesis_size/2.0 * pix_h_out;  // amount of height pixels that overlap each other
+	overlap_w_out = overlap_w_in * tex.width / width; // size of overlap width in out texture coordinates
+	overlap_h_out = overlap_h_in * tex.height / height; // size of overlap height in out texture coordinates
+	patch_w_in = 1/w_count_in;  // width of a patch (without the overlap)
+	patch_h_in = 1/h_count_in; // height of a patch (without the overlap)
 	patch_w_out = 1/w_count_out + 2 * overlap_w_out; // size of patch width in out texture coordinates
 	patch_h_out = 1/h_count_out + 2 * overlap_h_out; // size of patch height in out texture coordinates
 
-	//print_values();
+	print_values();
 
 	if( (w_count_out / (float)w_count_in) != round(w_count_out / w_count_in) ||
 		(h_count_out / (float)h_count_in) != round(h_count_out / h_count_in)) {
-		cout << "\n*** Error ***\nSynthesis size must be evenly divisible by both width and height!\n";
+		cout << "\n*** Error ***\nSynthesis size must be evenly divisible by both width and height!\n\n";
 	}
 
 	// Load and compile shaders
@@ -53,9 +55,11 @@ ImageQuilter::ImageQuilter(const unsigned& w, const unsigned& h, const unsigned&
 	fbo_patch = initFBO(width, height, 0);
 	fbo1 = initFBO(width, height, 0);
 	fbo2 = initFBO(width, height, 0);
-	
-	//fbo_test = initFBO((int)(width*patch_w_out), (int)(height*patch_h_out), 0);
-	fbo_test = initFBO(width, height, 0);
+	fbo_work = initFBO(width, height, 0);
+
+	for(int i = 0; i < amount_patches; i++) {
+		patches.push_back(patch_data(fbo_work, *this));
+	}
 }
 
 void ImageQuilter::render()
@@ -77,7 +81,7 @@ void ImageQuilter::render()
 }
 
 
-// code taken from http://www.flashbang.se/archives/155
+// code taken from http://www.flashbang.se/archives/155 (October 2016)
 void ImageQuilter::saveImage()
 {
 	int x = fbo_final->width;
@@ -137,16 +141,18 @@ void ImageQuilter::print_values()
 	"width 		" << width << "\n" <<
 	"height 		" << height << "\n" <<
 	"synthesis_size 	" << synthesis_size << "\n" <<
-	"w_count_out 	" << w_count_out <<  "\n" <<
-	"h_count_out 	" << h_count_out << "\n" <<
 	"w_count_in 	" << w_count_in << "\n" <<
 	"h_count_in 	" << h_count_in << "\n" <<
-	"pix_w 		" << pix_w << "\n" <<
-	"pix_h 		" << pix_h << "\n" <<
-	"overlap_w 	" << overlap_w << "\n" <<
-	"overlap_h 	" << overlap_h << "\n" <<
-	"x_width 	" << x_width << "\n" <<
-	"y_height 	" << y_height << "\n" <<
+	"pix_w_in 	" << pix_w_in << "\n" <<
+	"pix_h_in 	" << pix_h_in << "\n" <<
+	"overlap_w_in 	" << overlap_w_in << "\n" <<
+	"overlap_h_in 	" << overlap_h_in << "\n" <<
+	"patch_w_in 	" << patch_w_in << "\n" <<
+	"patch_h_in 	" << patch_h_in << "\n" <<
+	"w_count_out 	" << w_count_out <<  "\n" <<
+	"h_count_out 	" << h_count_out << "\n" <<
+	"pix_w_out 	" << pix_w_out << "\n" <<
+	"pix_h_out 	" << pix_h_out << "\n" <<
 	"overlap_w_out 	" << overlap_w_out << "\n" <<
 	"overlap_h_out 	" << overlap_h_out << "\n" <<
 	"patch_w_out 	" << patch_w_out << "\n" <<
