@@ -13,8 +13,6 @@ ImageQuilter::ImageQuilter(const unsigned& w, const unsigned& h, const unsigned&
 	glDisable(GL_CULL_FACE);
 	printError("GL inits");
 
-cout << tex.width << ", " << tex.height << endl;
-
 	//Initialize a bunch of helper variables
 	w_count_in = tex.width/synthesis_size; // amount of patches that fit on in texture width
 	h_count_in = tex.height/synthesis_size; // amount of patches that fit on in texture width
@@ -24,21 +22,16 @@ cout << tex.width << ", " << tex.height << endl;
 	pix_h_in = 1/(float)tex.height; // height of one pixel in in texture coordinates
 	pix_w_out = 1/(float)width;  // width of one pixel
 	pix_h_out = 1/(float)height; // height of one pixel
-	overlap_w_in = synthesis_size/2.0 * pix_w_out;  // amount of width pixels that overlap each other
-	overlap_h_in = synthesis_size/2.0 * pix_h_out;  // amount of height pixels that overlap each other
-	overlap_w_out = overlap_w_in * tex.width / width; // size of overlap width in out texture coordinates
-	overlap_h_out = overlap_h_in * tex.height / height; // size of overlap height in out texture coordinates
 	patch_w_in = 1/w_count_in;  // width of a patch (without the overlap)
 	patch_h_in = 1/h_count_in; // height of a patch (without the overlap)
-	patch_w_out = 1/w_count_out + 2 * overlap_w_out; // size of patch width in out texture coordinates
-	patch_h_out = 1/h_count_out + 2 * overlap_h_out; // size of patch height in out texture coordinates
+	patch_w_out = 1/w_count_out; // size of patch width in out texture coordinates
+	patch_h_out = 1/h_count_out; // size of patch height in out texture coordinates
+	overlap_w_in = patch_w_in/6.0;  // amount of width pixels that overlap each other
+	overlap_h_in = patch_h_in/6.0;  // amount of height pixels that overlap each other
+	overlap_w_out = patch_w_out/6.0; // size of overlap width in out texture coordinates
+	overlap_h_out = patch_h_out/6.0; // size of overlap height in out texture coordinates
 
-	print_values();
-
-	if( (w_count_out / (float)w_count_in) != round(w_count_out / w_count_in) ||
-		(h_count_out / (float)h_count_in) != round(h_count_out / h_count_in)) {
-		cout << "\n*** Error ***\nSynthesis size must be evenly divisible by both width and height!\n\n";
-	}
+	//print_values();
 
 	// Load and compile shaders
 	plaintextureshader = loadShaders("shaders/plaintextureshader.vert", "shaders/plaintextureshader.frag");
@@ -57,6 +50,7 @@ cout << tex.width << ", " << tex.height << endl;
 	fbo2 = initFBO(width, height, 0);
 	fbo_work = initFBO(width, height, 0);
 
+	//initialize patch array (only used by minerror method)
 	for(int i = 0; i < amount_patches; i++) {
 		patches.push_back(patch_data(fbo_work, *this));
 	}
@@ -129,7 +123,7 @@ void ImageQuilter::draw_fbo_translated(FBOstruct *out, FBOstruct *in, GLfloat x,
 	glUseProgram(translateshader);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
-	mat4 transMatrix = T(x, y, 0.0);
+	mat4 transMatrix = T(2*x, 2*y, 0.0); // window goes from -1 to 1. We prefer using 0 to 1.
 	glUniformMatrix4fv(glGetUniformLocation(translateshader, "mat"), 1, GL_TRUE, transMatrix.m);
 	DrawModel(image_square.get(), translateshader, (char*)"in_Position", NULL, (char*)"in_TexCoord");
 }
@@ -138,9 +132,10 @@ void ImageQuilter::draw_fbo_translated(FBOstruct *out, FBOstruct *in, GLfloat x,
 void ImageQuilter::print_values()
 {
 	cout << "\nValues are: \n" <<
-	"width 		" << width << "\n" <<
-	"height 		" << height << "\n" <<
-	"synthesis_size 	" << synthesis_size << "\n" <<
+//	"width 		" << width << "\n" <<
+//	"height 		" << height << "\n" <<
+//	"synthesis_size		" << synthesis_size << "\n" <<
+//	"\n" <<
 	"w_count_in 	" << w_count_in << "\n" <<
 	"h_count_in 	" << h_count_in << "\n" <<
 	"pix_w_in 	" << pix_w_in << "\n" <<
@@ -149,6 +144,7 @@ void ImageQuilter::print_values()
 	"overlap_h_in 	" << overlap_h_in << "\n" <<
 	"patch_w_in 	" << patch_w_in << "\n" <<
 	"patch_h_in 	" << patch_h_in << "\n" <<
+	"\n" <<
 	"w_count_out 	" << w_count_out <<  "\n" <<
 	"h_count_out 	" << h_count_out << "\n" <<
 	"pix_w_out 	" << pix_w_out << "\n" <<

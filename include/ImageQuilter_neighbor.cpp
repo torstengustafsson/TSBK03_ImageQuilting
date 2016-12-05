@@ -12,14 +12,24 @@ void ImageQuilter::create_image_neighbor()
 			//we will draw a patch of texture to current fbo patch
 			useFBO(fbo_patch, fbo_texture, 0L);
 
-			float x_pos = rng(width*(1.0-1.0/w_count_in)) * pix_w_in;
-			float y_pos = rng(height*(1.0-1.0/h_count_in)) * pix_w_in;
+			float x_pos = overlap_w_in + rng(tex.width*(1.0-(1.0/w_count_in + 2 * overlap_w_in))) * pix_w_in;
+			float y_pos = overlap_h_in + rng(tex.height*(1.0-(1.0/h_count_in + 2 * overlap_h_in))) * pix_h_in;
 
 			//create the square to draw our patch from
-			Square s(x_pos - overlap_w_in, y_pos - overlap_h_in, patch_w_in + 2 * overlap_w_in, patch_h_in + 2 * overlap_h_in);
+			Square s(
+				x_pos - overlap_w_in, 
+				y_pos - overlap_h_in, 
+				patch_w_in + 2 * overlap_w_in, 
+				patch_h_in + 2 * overlap_h_in
+			);
 
 			//position square to fit final image
-			s.set_position(i/w_count_out - overlap_w_out, j/h_count_out - overlap_h_out, 1/w_count_out + 2 * overlap_w_out, 1/h_count_out + 2 * overlap_h_out);
+			s.set_position(
+				i/w_count_out - overlap_w_out, 
+				j/h_count_out - overlap_h_out, 
+				1/w_count_out + 2 * overlap_w_out, 
+				1/h_count_out + 2 * overlap_h_out
+			);
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUseProgram(transparencyshader);
@@ -36,6 +46,7 @@ void ImageQuilter::create_image_neighbor()
 			glUniform1f(glGetUniformLocation(transparencyshader, "coord_u2"), y_pos + patch_h_in + overlap_h_in);
 			glUniform1f(glGetUniformLocation(transparencyshader, "coord_d1"), y_pos - overlap_h_in);
 			glUniform1f(glGetUniformLocation(transparencyshader, "coord_d2"), y_pos + overlap_h_in);
+
 			DrawModel(s.get(), transparencyshader, (char*)"in_Position", NULL, (char*)"in_TexCoord");
 
 			if(count++ == 0) {

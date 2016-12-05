@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>	//TODO only used for testing, might want to remove when complete
+#include <unistd.h>
 #include <math.h>
 #include <stdlib.h>
 #include <vector>
@@ -64,21 +65,13 @@ private:
 		FBOstruct *fbo;
 		Square *s;
 		ImageQuilter& parent;
-		//patch_data(FBOstruct* _fbo, Square* _s, ImageQuilter& _p) : fbo{_fbo}, s{_s}, parent{_p} 
-		//{
-		//	//fbo = initFBO(_fbo->width, _fbo->height, 0);
-		//}
+		
 		patch_data(FBOstruct* _fbo, ImageQuilter& _p) : parent{_p} 
 		{
 			fbo = initFBO(_fbo->width, _fbo->height, 0); // TODO: this is horribly slow and uses too much GPU memory
 			parent.draw_fbo(fbo, _fbo, 0L, parent.plaintextureshader);
 			//s = new Square(*(_s));
 		}
-		/*patch_data(const patch_data& pd) : parent{pd.parent} {
-			fbo = initFBO(pd.fbo->width, pd.fbo->height, 0); // TODO: this is horribly slow and uses too much GPU memory
-			parent.draw_fbo(fbo, pd.fbo, 0L, parent.plaintextureshader);
-			s = new Square(*(pd.s));
-		}*/
 
 		patch_data& operator=(const patch_data& pd) {
 			fbo = pd.fbo;
@@ -100,7 +93,7 @@ private:
 	void draw_fbo_translated(FBOstruct *out, FBOstruct *in, GLfloat x, GLfloat y);
 
 	//Used by minerror method
-	const int amount_patches = 10; // higher value should give better images, but slows down program linearly
+	const int amount_patches = 40; // higher value should give better images, but slows down program linearly
 	vector<patch_data> patches;
 	void generate_patches();
 	float calc_minerror(patch_data& in1, patch_data& in2, bool side);

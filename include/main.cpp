@@ -20,7 +20,6 @@ void reshape(GLsizei w, GLsizei h)
 	glViewport(0, 0, w, h);
 }
 
-
 // This function is called whenever the computer is idle
 // As soon as the machine is idle, ask GLUT to trigger rendering of a new
 // frame
@@ -53,11 +52,10 @@ int main(int argc, char *argv[])
 	//load texture
 	TextureData tex;
 
-	char* file;
 	bool ok =false;
 
 	int size = 512;
-	if(argc > 2) {
+	if(argc > 2) { // size argument need to load first
 		size = atoi(argv[2]);
 	}
 
@@ -70,14 +68,10 @@ int main(int argc, char *argv[])
 	glutReshapeFunc(reshape);
 	glutIdleFunc(idle);
 
-	if(argc > 1) {
-		file = argv[1];
-		if(!(ok = LoadTGATexture(file, &tex)))
-			cout << "\nError loading file (does filename '" << file << "' exist?)\nLoading noise image instead..\n\n";
-	}
-	
-	if(!ok)
+	if(argc > 1 && !(ok = LoadTGATexture(argv[1], &tex))) {
+		cout << "\nError loading file (does filename '" << argv[1] << "' exist?)\nLoading noise image instead..\n\n";
 		LoadTGATexture((char*)"images/noise.tga", &tex);
+	}
 
 	int synthesis_size = 64;
 	if(argc > 3) {
